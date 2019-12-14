@@ -145,3 +145,8 @@ TINYMCE_DEFAULT_CONFIG = {
     'height': 400,
 }
 
+# 发送邮件配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'
+
+
