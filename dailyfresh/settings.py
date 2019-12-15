@@ -147,6 +147,17 @@ TINYMCE_DEFAULT_CONFIG = {
 
 # 发送邮件配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.qq.com'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+# 发送邮件的邮箱
+# EMAIL_HOST_USER = '3023087535@qq.com'
+# EMAIL_HOST_PASSWORD = 'syansfrdxmczdcjc'
+# EMAIL_HOST_USER = '87313199@qq.com'
+# EMAIL_HOST_PASSWORD = 'gkjcokmahkezcbac'
+EMAIL_HOST_USER = 'smartzoo@163.com'
+EMAIL_HOST_PASSWORD = 'python2020'
+
+# 收件人看到的发件人
+EMAIL_FORM = '史莱克学院<smartzoo@163.com>'
 
 
