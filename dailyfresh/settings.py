@@ -29,7 +29,7 @@ SECRET_KEY = 'kb^_5_tkc%w#3#b1xwon37@xb=xshw4x)n+uin@aj+g7ft)_uk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -160,4 +160,21 @@ EMAIL_HOST_PASSWORD = 'python2020'
 # 收件人看到的发件人
 EMAIL_FORM = '史莱克学院<smartzoo@163.com>'
 
+# 解决user.is_active验证账号激活状态失效的问题
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
+
+# Django的缓存配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://118.24.221.133:6379/9",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# 配置session存储
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 

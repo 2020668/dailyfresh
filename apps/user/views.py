@@ -5,6 +5,7 @@ from django.http import HttpResponse
 import re
 from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib.auth import authenticate, login
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 import random
@@ -71,8 +72,11 @@ class RegisterView(View):
         vcode1 = request.POST.get('vcode')
         # 获取session中的验证码
         vcode2 = request.session.get('verifycode')
-        if vcode1 != vcode2:
-            return redirect('user/login')
+        if vcode1:
+            if vcode1 != vcode2:
+                return render(request, 'register.html', {'errmsg': '验证码错误,请重新输入'})
+        else:
+            return render(request, 'register.html', {'errmsg': '请输入验证码'})
 
         # 进行业务处理
         user = User.objects.create_user(username, email, password)
@@ -129,7 +133,51 @@ class ActiveView(View):
 class LoginView(View):
 
     def get(self, request):
-        return render(request, 'login.html')
+        # 判断是否记住了用户名
+        if 'username' in request.COOKIES:
+            username = request.COOKIES.get('username')
+            checked = 'checked'
+        else:
+            username = ''
+            checked = ''
+        return render(request, 'login.html', {'username': username, 'checked': checked})
+
+    # 执行登录
+    def post(self, request):
+        username = request.POST['username']
+        password = request.POST['pwd']
+        # 校验数据
+        if not all([username, password]):
+            return render(request, 'login.html', {'errmsg': '数据不完整'})
+        # 登录校验
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # 用户名密码正确
+            if user.is_active:
+                # 用户已激活　记录用户的登录状态
+                login(request, user)
+
+                # 跳转到首页
+                response = redirect(reverse('goods:index'))
+
+                # 判断是否需要记住用户名
+                remember = request.POST.get('remember')
+                if remember == "on":
+                    # 记住用户名
+                    response.set_cookie('username', username, max_age=7*24*3600)
+                else:
+                    response.delete_cookie('username')
+
+                return response
+
+            else:
+                # 用户未激活
+                print('账户未激活')
+                return render(request, 'login.html', {'errmsg': '账户未激活，请前往邮箱激活'})
+        else:
+            # 用户名或密码错误
+            print('用户名或密码错误')
+            return render(request, 'login.html', {'errmsg': '用户名或密码错误'})
 
 
 def verify_code(request):

@@ -23,7 +23,7 @@
 {#				<a href="{% url 'user:login' %}">登录</a>#}
 			</div>
 			<div class="reg_form clearfix">
-				<form method="post" action="/user/register">
+				<form id="register" method="post" action="/user/register">
                     {% csrf_token %}
                     <ul>
                         <li>
@@ -52,7 +52,7 @@
                             <span class="error_tip2">提示信息</span>
                         </li>
                         <li>
-                        <img src="/user/verify_code" hspace="80"><br/>
+                        <img src="/user/verify_code" hspace="70"><br/>
                         </li>
                         <li>
                             <label>验证码:</label>

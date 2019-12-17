@@ -100,7 +100,7 @@ function checkEmail() {
 		}
 		else
 		{
-			$('#email').next().html('你输入的邮箱格式不正确')
+			$('#email').next().html('邮箱格式不正确')
 			$('#email').next().show();
 			errorEmail = true;
 		}
