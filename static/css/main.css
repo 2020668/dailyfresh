@@ -277,7 +277,7 @@ html,body{height:100%}
 
 .login_top{width:960px;height:130px;margin:0 auto;}
 .login_logo{display:block;width:193px;height:76px;margin-top:30px;}
-.login_form_bg{height:480px;background-color:#518e17}
+.login_form_bg{height:540px;background-color:#518e17}
 .no-mp{margin-top:0px;}
 .login_form_wrap{width:960px;height:480px;margin:0 auto;}
 .login_banner{width:381px;height:322px;background:url(../images/login_banner.png) no-repeat;margin-top:90px;}
@@ -310,7 +310,7 @@ html,body{height:100%}
 /* 注册页面 */
 .register_con{
 	width:700px;
-	height:560px;
+	height:620px;
 	margin:50px auto 0;
 	background:url(../images/interval_line.png) 300px top no-repeat;
 }

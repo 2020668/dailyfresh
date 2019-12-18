@@ -1,0 +1,79 @@
+{# 首页　注册　登录 #}
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {# 网页标题内容块 #}
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {# 网页顶部引入文件快 #}
+    {% block topfiles %}{% endblock topfiles %}
+</head>
+<body>
+{# 网页顶部欢迎信息块 #}
+{% block header_con %}
+    <div class="header_con">
+        <div class="header">
+            <div class="welcome fl">欢迎来到史莱克学院</div>
+            <div class="fr">
+                <div class="login_info fl">
+                    欢迎:<em>唐　三</em>
+                </div>
+                <div class="login_btn fl">
+                    <a href="{% url 'user:login' %}">登录</a>
+                    <span>|</span>
+                    <a href="{% url 'user:register' %}">注册</a>
+                </div>
+                <div class="user_link fl">
+                    <span>|</span>
+                    <a href="{% url 'user:center' %}">用户中心</a>
+                    <span>|</span>
+                    <a href="{% url 'user:cart' %}">我的购物车</a>
+                    <span>|</span>
+                    <a href="{% url 'user:order' %}">我的订单</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock header_con %}
+{# 网页顶部搜索块 #}
+{% block search_bar %}
+    <div class="search_bar clearfix">
+    <a href="index.html" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
+    <form method='get' action="/search/" target="_blank">
+    <div class="search_con fl">
+        <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+        <input type="submit" class="input_btn fr" name="" value="搜索">
+    </div>
+    </form>
+        <div class="guest_cart fr">
+            <a href="{% url 'cart:cart' %}" class="cart_name fl">我的购物车</a>
+        </div>
+</div>
+{% endblock search_bar %}
+{# 网页主题内容块 #}
+{% block body %}{% endblock body %}
+    <div class="footer no-mp">
+        <div class="foot_link">
+            <a href="#">关于我们</a>
+            <span>|</span>
+            <a href="#">联系我们</a>
+            <span>|</span>
+            <a href="#">招聘人才</a>
+            <span>|</span>
+            <a href="#">友情链接</a>
+        </div>
+        <p>CopyRight © 2019 史莱克学院　All Rights Reserved</p>
+        <p>电话:18971335925  　京ICP备********8号</p>
+    </div>
+    {# 网页底部文件引入块 #}
+    {% block bottomfiles %}
+    {% endblock bottomfiles %}
+</body>
+</html>
+
+
+
+

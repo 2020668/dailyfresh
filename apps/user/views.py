@@ -69,14 +69,14 @@ class RegisterView(View):
             return render(request, 'register.html', {'errmsg': '邮箱格式不正确'})
 
         # 获取用户输入的验证码
-        vcode1 = request.POST.get('vcode')
-        # 获取session中的验证码
-        vcode2 = request.session.get('verifycode')
-        if vcode1:
-            if vcode1 != vcode2:
-                return render(request, 'register.html', {'errmsg': '验证码错误,请重新输入'})
-        else:
-            return render(request, 'register.html', {'errmsg': '请输入验证码'})
+        # vcode1 = request.POST.get('vcode')
+        # # 获取session中的验证码
+        # vcode2 = request.session.get('verifycode')
+        # if vcode1:
+        #     if vcode1 != vcode2:
+        #         return render(request, 'register.html', {'errmsg': '验证码错误,请重新输入'})
+        # else:
+        #     return render(request, 'register.html', {'errmsg': '请输入验证码'})
 
         # 进行业务处理
         user = User.objects.create_user(username, email, password)
@@ -148,7 +148,7 @@ class LoginView(View):
         password = request.POST['pwd']
         # 校验数据
         if not all([username, password]):
-            return render(request, 'login.html', {'errmsg': '数据不完整'})
+            return render(request, 'login.html', {'errmsg': '请输入用户名和密码'})
         # 登录校验
         user = authenticate(username=username, password=password)
         if user is not None:
@@ -218,4 +218,5 @@ def verify_code(request):
     # 将图片保持在内存中　格式为png
     im.save(buf, 'png')
     # 将内存中的图片返回给客户端　MIME类型为图片png
+    print('图片生成')
     return HttpResponse(buf.getvalue(), 'image/png')
