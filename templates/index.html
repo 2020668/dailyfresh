@@ -15,9 +15,9 @@
         <div class="welcome fl">欢迎来到天天生鲜!</div>
         <div class="fr">
             <div class="login_btn fl">
-                <a href="login.html">登录</a>
+                <a href="{% url 'user:login' %}">登录</a>
                 <span>|</span>
-                <a href="register.html">注册</a>
+                <a href="{% url 'user:register' %}">注册</a>
             </div>
         </div>
     </div>

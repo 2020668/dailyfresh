@@ -2,18 +2,21 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import View
 from django.http import HttpResponse
-import re
 from django.conf import settings
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.utils.six import BytesIO
+import re
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 import random
 from PIL import Image, ImageDraw, ImageFont
-from django.utils.six import BytesIO
+from utils.mixin import LoginRequiredMixin
+from django_redis import get_redis_connection
 
 from celery_tasks.tasks import send_register_active_email
-from user.models import User
+from user.models import User, Address
+from goods.models import GoodsSKU
 
 
 # Create your views here.
@@ -157,8 +160,11 @@ class LoginView(View):
                 # 用户已激活　记录用户的登录状态
                 login(request, user)
 
-                # 跳转到首页
-                response = redirect(reverse('goods:index'))
+                # 获取登录后要跳转的地址 否则跳转到首页
+                next_url = request.GET.get('next', reverse('goods:index'))
+
+                # 跳转到next_url
+                response = redirect(next_url)
 
                 # 判断是否需要记住用户名
                 remember = request.POST.get('remember')
@@ -178,6 +184,15 @@ class LoginView(View):
             # 用户名或密码错误
             print('用户名或密码错误')
             return render(request, 'login.html', {'errmsg': '用户名或密码错误'})
+
+
+# /user/logout
+class LogoutView(View):
+
+    def get(self, request):
+        # 清除用户的session信息
+        logout(request)
+        return redirect(reverse('user:login'))
 
 
 def verify_code(request):
@@ -220,3 +235,102 @@ def verify_code(request):
     # 将内存中的图片返回给客户端　MIME类型为图片png
     print('图片生成')
     return HttpResponse(buf.getvalue(), 'image/png')
+
+
+# 用户中心　信息页 /user
+class UserInfoView(LoginRequiredMixin, View):
+    def get(self, request):
+        # page='user'
+        # 除了你个模板文件传递的模板变量外，django框架会把request.user也传递给模板文件
+        # 如果未登录　AnonymousUser类的一个实例　登录则是User类的实例
+
+        # 获取用户的个人信息
+        user = request.user
+        address = Address.objects.get_default_address(user)
+
+        # 获取用户的历史浏览记录
+        # sr = StrictRedis(host='118.24.221.133', port=6379, db=9, password='zuo1988')
+        con = get_redis_connection('default')   # setting.py中的配置
+        history_key = 'history_{}'.format(user.id)
+        # 获取用户最新浏览的5条商品id
+        sku_ids = con.lrange(history_key, 0, 4)
+        # 从数据库中查询用户浏览的商品信息
+        # goods_li = GoodsSKU.objects.filter(id__in=sku_ids)
+        # goods_res = []
+        # for a_id in sku_ids:
+        #     for goods in goods_li:
+        #         if a_id == goods.id:
+        #             goods_res.append(goods)
+        goods_li = []
+        for id in sku_ids:
+            goods = GoodsSKU.objects.get(id=id)
+            goods_li.append(goods)
+
+        # 组织上下文
+        context = {'page': 'user',
+                   'address': address,
+                   'goods_li': goods_li
+                   }
+
+        return render(request, 'user_center_info.html', context)
+
+
+# 用户中心　订单页 /user/order
+class UserOrderView(LoginRequiredMixin, View):
+    def get(self, request):
+        # page='order'
+        return render(request, 'user_center_order.html', {'page': 'order'})
+
+
+# 用户中心　地址页  /user/address
+class AddressView(LoginRequiredMixin, View):
+    def get(self, request):
+        # page='address'
+        # 获取用户的默认收货地址
+        user = request.user
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     address = None
+        address = Address.objects.get_default_address(user)
+
+        return render(request, 'user_center_site.html', {'page': 'address', 'address': address})
+
+    # 添加地址
+    def post(self, request):
+        # 接收数据
+        receiver = request.POST.get('receiver')
+        address = request.POST.get('address')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+        # 校验数据
+        if not all([receiver, address, phone]):
+            return render(request, 'user_center_site.html', {'errmsg': '数据不完整'})
+        # 校验手机号
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'user_center_site.html', {'errmsg': '手机号格式非法'})
+
+        # 业务处理　地址添加
+        # 如果已有收货地址　则添加的地址不作为默认地址　否则是默认地址
+        # 获取登录用户对应的user对象
+        user = request.user
+        # try:
+        #     address_current = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     address_current = None
+        address_current = Address.objects.get_default_address(user)
+        if address_current:
+            is_default = False
+        else:
+            is_default = True
+        # 添加地址
+        Address.objects.create(user=user,
+                               receiver=receiver,
+                               address=address,
+                               zip_code=zip_code,
+                               phone=phone,
+                               is_default=is_default
+                               )
+
+        # 返回应答 刷新地址页面
+        return redirect(reverse('user:address'))

@@ -24,6 +24,18 @@ class User(AbstractUser, BaseModel):
         verbose_name_plural = verbose_name
 
 
+class AddressManager(models.Manager):
+    # 改变原有查询的结果集
+    # 封装方法　增删改查
+    def get_default_address(self, user):
+        # self.model获取self对象所在的模型类
+        try:
+            address_current = self.get(user=user, is_default=True)
+        except self.model.DoesNotExist:
+            address_current = None
+        return address_current
+
+
 class Address(BaseModel):
     user = models.ForeignKey(User, verbose_name='所属账户', on_delete=models.DO_NOTHING)
     receiver = models.CharField(max_length=20, verbose_name='收件人')
@@ -31,7 +43,9 @@ class Address(BaseModel):
     address = models.CharField(max_length=100, verbose_name='收件人地址')
     zip_code = models.IntegerField(null=True, verbose_name='邮政编码')
     is_default = models.BooleanField(default=False, verbose_name='是否默认')
-    # objects = AddressManager()
+
+    # 自定义模型管理器对象
+    objects = AddressManager()
 
     class Meta:
         db_table = 'df_address'
