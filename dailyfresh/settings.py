@@ -180,3 +180,11 @@ SESSION_CACHE_ALIAS = "default"
 
 # 配置登录url
 LOGIN_URL = '/user/login'
+
+# fastdfs配置 django的文件存储类
+DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
+
+FDFS_CLIENT_CONF = 'utils.fdfs.storage.FDFSStorage'
+
+# 设置fdfs服务器的nginx的ip
+FDFS_URL = 'http://118.24.221.133:81/'
